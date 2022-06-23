@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Smart Door</string>
+    <string name="instructions">
+Place your fingertip on the Home button to verify your identity
+</string>
+
+    <string name = "server_host">192.168.100.1</string>
+    <string name="rtsp_url"></string>
+</resources>
