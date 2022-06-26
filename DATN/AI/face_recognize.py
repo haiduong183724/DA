@@ -2,7 +2,7 @@ import face_recognition
 import cv2
 import numpy as np
 from load_module import loadData
-
+import time
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
 #   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
@@ -27,13 +27,14 @@ face_locations = []
 face_encodings = []
 face_names = []
 process_this_frame = True
-
+time_counter_open = 0;
+time_counter_close = 0;
+update_door_state = False;
 while True:
     # Grab a single frame of video
     ret, frame = video_capture.read()
-
     # Resize frame of video to 1/4 size for faster face recognition processing
-    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+    # small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
     small_frame = frame
 
     # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
@@ -62,6 +63,35 @@ while True:
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
             face_names.append(name)
+        if len(face_names) == 0:
+            time_counter_close = time_counter_close + 1;
+            if time_counter_open > 0:
+                update_door_state = False;
+                time_counter_open = 0;
+        else:
+            is_recognize = False;
+            for name in face_names:
+                if name != "Unknown":
+                    is_recognize = True
+                    break;
+            if is_recognize:
+                time_counter_open = time_counter_open + 1
+                if time_counter_close > 0:
+                    update_door_state = False;
+                    time_counter_close = 0;
+            else:
+                time_counter_close = time_counter_close + 1;
+                if time_counter_open > 0:
+                    update_door_state = False;
+                    time_counter_open = 0;
+        print("time open: " + str(time_counter_open) + " time close: " +  str(time_counter_close));
+        if time_counter_close >= 10 and not update_door_state:
+            print("close the door");
+            update_door_state = True
+        if time_counter_open >= 10 and not update_door_state:
+                        # call api to open the door
+            print("open the door");
+            update_door_state = True
 
     process_this_frame = not process_this_frame
 
@@ -81,7 +111,7 @@ while True:
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
         cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
-
+    
     # Display the resulting image
     cv2.imshow('Video', frame)
 
