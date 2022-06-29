@@ -1,0 +1,5 @@
+{
+    "server_url": "http://localhost:8081",
+    "update_door_state":"change-door-state",
+    "door_id": "123ad"
+}

@@ -3,6 +3,11 @@ import cv2
 import numpy as np
 from load_module import loadData
 import time
+import json
+from call_api import call_update_door
+
+
+
 # This is a demo of running face recognition on live video from your webcam. It's a little more complicated than the
 # other example, but it includes some basic performance tweaks to make things run a lot faster:
 #   1. Process each video frame at 1/4 resolution (though still display it at full resolution)
@@ -27,8 +32,11 @@ face_locations = []
 face_encodings = []
 face_names = []
 process_this_frame = True
+# counter to open the door if this index > 10;
 time_counter_open = 0;
+# counter to close the door if this index >1 0
 time_counter_close = 0;
+# update the door state when the door ready change
 update_door_state = False;
 while True:
     # Grab a single frame of video
@@ -63,11 +71,13 @@ while True:
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
             face_names.append(name)
+        # if not have any people in front of camera => counter to increase close count number
         if len(face_names) == 0:
-            time_counter_close = time_counter_close + 1;
+            if time_counter_close < 10:
+                time_counter_close = time_counter_close + 1;
             if time_counter_open > 0:
                 update_door_state = False;
-                time_counter_open = 0;
+                time_counter_open = time_counter_open - 1;
         else:
             is_recognize = False;
             for name in face_names:
@@ -75,23 +85,29 @@ while True:
                     is_recognize = True
                     break;
             if is_recognize:
-                time_counter_open = time_counter_open + 1
+                if time_counter_open < 10:
+                    time_counter_open = time_counter_open + 1
                 if time_counter_close > 0:
                     update_door_state = False;
-                    time_counter_close = 0;
+                    time_counter_close = time_counter_close -1;
             else:
-                time_counter_close = time_counter_close + 1;
+                if time_counter_close < 10:
+                    time_counter_close = time_counter_close + 1;
                 if time_counter_open > 0:
                     update_door_state = False;
-                    time_counter_open = 0;
+                    time_counter_open = time_counter_open -1;
         print("time open: " + str(time_counter_open) + " time close: " +  str(time_counter_close));
         if time_counter_close >= 10 and not update_door_state:
             print("close the door");
+            call_update_door(False)
             update_door_state = True
+            time_counter_open = 0
         if time_counter_open >= 10 and not update_door_state:
-                        # call api to open the door
+            # call api to open the door
             print("open the door");
+            call_update_door(True);
             update_door_state = True
+            time_counter_close = 0;
 
     process_this_frame = not process_this_frame
 
