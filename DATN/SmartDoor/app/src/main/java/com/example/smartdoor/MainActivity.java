@@ -26,9 +26,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.smartdoor.R;
 import com.example.smartdoor.door.DoorState;
 import com.example.smartdoor.door.ListDoor;
+import com.example.smartdoor.network.HttpsTrustManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,22 +49,14 @@ import java.util.concurrent.Executor;
 public class MainActivity extends AppCompatActivity {
 
     View popupView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_layout);
         popupView = findViewById(R.id.popup_view);
-        DoorState door1 = new DoorState("door 1", true,"rtsp://192.168.77.106:5555");
-        DoorState door2 = new DoorState("door 2", false,"rtsp://192.168.77.106:5555");
-        DoorState door3 = new DoorState("door 3", true, "rtsp://192.168.77.106:5555");
-        List<DoorState> listDoor = new ArrayList<DoorState>();
-        listDoor.add(door1);
-        listDoor.add(door2);
-        listDoor.add(door3);
-
-        final ListView listView = (ListView) findViewById(R.id.list_door);
-        listView.setAdapter(new ListDoor(this, listDoor));
-
+        final ListView listView = findViewById(R.id.list_door);
+        GetAllDoorState(listView);
         // When the user clicks on the ListItem
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -65,7 +69,40 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
+    public void GetAllDoorState(ListView listView){
+        String url = getResources().getString(R.string.server_host) + "/door/get-all";
+        RequestQueue queue = Volley.newRequestQueue(this);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Show list door on the display
+                        List<DoorState> listDoor = new ArrayList<>();
+                        try {
+                            JSONArray arr = new JSONArray(response);
+                            Log.d("RESPONSE", response);
+                            for(int i = 0; i < arr.length(); i++){
+                                JSONObject door = arr.getJSONObject(i);
+                                String doorId = door.getString("doorId");
+                                Boolean doorState = door.getBoolean("doorState");
+                                String doorChanel = door.getString("doorChanel");
+                                DoorState Door = new DoorState(doorId,doorState,doorChanel);
+                                listDoor.add(Door);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        listView.setAdapter(new ListDoor(getApplicationContext(), listDoor));
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e("REQUEST_ERR", error.getMessage());
+                    }
+                });
+        queue.add(stringRequest);
+    }
     public void ShowPopUp( View view, String rtspUrl){
         // inflate the layout of the popup window
         LayoutInflater inflater = (LayoutInflater)

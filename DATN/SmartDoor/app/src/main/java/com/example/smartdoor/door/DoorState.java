@@ -3,35 +3,35 @@ package com.example.smartdoor.door;
 public class DoorState {
 
 
-    private String id;
-    private Boolean state;
-    private String rtspUrl;
+    private String doorId;
+    private Boolean doorState;
+    private String doorChanel;
     public DoorState(String id, boolean isOpen, String rtspUrl){
-        this.id = id;
-        this.state = isOpen;
-        this.rtspUrl = rtspUrl;
+        this.doorId = id;
+        this.doorState = isOpen;
+        this.doorChanel = rtspUrl;
     }
     public String getId() {
-        return id;
+        return doorId;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.doorId = id;
     }
 
     public Boolean getState() {
-        return state;
+        return doorState;
     }
 
     public void setState(Boolean state) {
-        this.state = state;
+        this.doorState = state;
     }
 
     public String getRtspUrl() {
-        return rtspUrl;
+        return doorChanel;
     }
 
     public void setRtspUrl(String rtspUrl) {
-        this.rtspUrl = rtspUrl;
+        this.doorChanel = rtspUrl;
     }
 }
