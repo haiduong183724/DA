@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 public class Door {
-    private UUID doorId;
+    private String doorId;
     private String doorName;
     private boolean doorState;
     private String doorChanel;
@@ -13,7 +13,6 @@ public class Door {
 
     }
     public Door(String doorId, boolean doorState, String doorChanel) {
-        this.doorId = UUID.randomUUID();
         this.doorName = doorId;
         this.doorState = doorState;
         this.doorChanel = doorChanel;

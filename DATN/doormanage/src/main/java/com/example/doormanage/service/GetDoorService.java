@@ -2,6 +2,7 @@ package com.example.doormanage.service;
 
 import com.example.doormanage.entity.Door;
 import com.example.doormanage.manage.SessionManage;
+import com.example.doormanage.model.DoorModel;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -11,8 +12,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class GetDoorService {
-    public  static List<Door> listDoor = new ArrayList<Door>();
+    public  static List<Door> listDoor;
     Lock lock = new ReentrantLock();
+    public GetDoorService(){
+        listDoor = DoorModel.getAllDoor();
+    }
     public List<Door> GetAllDoor(){
         if(listDoor.isEmpty()){
             return null;

@@ -9,7 +9,6 @@ import org.hibernate.type.StringType;
 import java.sql.Types;
 
 public class SQLiteDialect extends Dialect {
-
     public SQLiteDialect() {
         registerColumnType(Types.VARCHAR, "doorId");
         registerColumnType(Types.VARCHAR, "doorName");
