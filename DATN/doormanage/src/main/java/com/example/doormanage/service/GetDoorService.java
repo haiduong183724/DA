@@ -1,23 +1,87 @@
 package com.example.doormanage.service;
 
 import com.example.doormanage.entity.Door;
+import com.example.doormanage.manage.SessionManage;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class GetDoorService {
-
+    public  static List<Door> listDoor = new ArrayList<Door>();
+    Lock lock = new ReentrantLock();
     public List<Door> GetAllDoor(){
-        List<Door> listDoor = new ArrayList<Door>();
-        Door d1 = new Door("1" , true, "rtsp://192.168.77.105:5555");
-        Door d2 = new Door("2" , true, "rtsp://192.168.77.105:5555");
-        Door d3 = new Door("3" , true, "rtsp://192.168.77.105:5555");
-        listDoor.add(d1);
-        listDoor.add(d2);
-        listDoor.add(d3);
-        return  listDoor;
+        if(listDoor.isEmpty()){
+            return null;
+        }
+        return listDoor;
     }
+
+    public String addDoor(String DoorId, String doorUrl){
+        boolean isIdExist = false;
+        for(Door door : listDoor){
+            if(door.getDoorId().equals((DoorId))){
+                return "The door has been added in the list door";
+            }
+        }
+        Door door = new Door(DoorId, false, doorUrl);
+        lock.lock();
+        listDoor.add(door);
+        lock.unlock();
+        return "the door has been added successfully";
+    }
+
+    public String removeDoor(String DoorId){
+        boolean isIdExist = false;
+        int index = -1;
+        for(Door door : listDoor){
+            if(door.getDoorId().equals((DoorId))){
+                index = listDoor.lastIndexOf(door);
+                return "The door has been added in the list door";
+            }
+        }
+        if(index >= 0){
+            lock.lock();
+            listDoor.remove(index);
+            lock.unlock();
+            return "the door has been removed successfully";
+        }
+        else {
+            return "the door didn't exist";
+        }
+    }
+    public String ChangeDoorState(String doorId, boolean doorState){
+        // Check the doorId exist
+        boolean isIdExist = false;
+        for(Door door : listDoor){
+            if(door.getDoorId().equals((doorId))){
+                isIdExist = true;
+                // Check the door state
+                if(door.isDoorState() == doorState){
+                    if(doorState == true){
+                        return "The door has been already opened";
+                    }
+                    else {
+                        return "The door has been already closed";
+                    }
+                }
+                else {
+                    // update the door state
+                    door.setDoorState(doorState);
+                    SessionManage.sendAll(doorId+":"+doorState);
+                    return "Change door state success";
+                }
+            }
+        }
+        if(isIdExist = false){
+            return "The door Id doesn't exist";
+        }
+
+        return null;
+    }
+
 
 }
