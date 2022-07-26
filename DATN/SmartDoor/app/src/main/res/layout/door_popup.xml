@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_gravity="bottom"
+    android:layout_height="wrap_content"
+    android:padding="3dp"
+    android:gravity="center"
+    android:background="@color/green"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center"
+        >
+
+    <LinearLayout
+        android:layout_width="150dp"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_margin="3dp">
+        <TextView
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp"
+            android:id="@+id/popup_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/list_gradient"
+            android:text="Open Door"
+            android:textColor="@color/black"
+            android:textAlignment="center"
+            android:textSize="25sp" />
+    </LinearLayout>
+
+    <LinearLayout
+    android:layout_width="150dp"
+    android:layout_height="match_parent"
+    android:layout_margin="3dp"
+    >
+    <TextView
+        android:id="@+id/open_video"
+        android:layout_width="match_parent"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textColor="@color/black"
+        android:background="@drawable/list_gradient"
+        android:text="Open Video"
+        android:textAlignment="center"
+        android:textSize="25sp" />
+</LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

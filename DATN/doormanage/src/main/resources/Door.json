@@ -1,0 +1,14 @@
+[
+  {
+    "doorId": "12141512",
+    "doorName": "Door front",
+    "doorState": false,
+    "doorChanel": "rtsp://192.168.77.105:5555"
+  },
+  {
+    "doorId": "1214121112",
+    "doorName": "Door back",
+    "doorState": false,
+    "doorChanel": "rtsp://192.168.77.105:5555"
+  }
+]
