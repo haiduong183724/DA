@@ -8,4 +8,6 @@ Place your fingertip on the Home button to verify your identity
     <string name = "web_socket">ws://192.168.77.108:8081</string>
     <string name="rtsp_url"></string>
     <string name = "error_msg">Danh sách cửa đang trống, vui lòng thêm cửa vào cấu hình</string>
+    <string name="channel_name">chanel 1</string>
+    <string name="channel_description">chanel 1</string>
 </resources>

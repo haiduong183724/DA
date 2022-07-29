@@ -1,9 +1,14 @@
 package com.example.smartdoor;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Debug;
 import android.os.StatFs;
@@ -25,6 +30,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
 import com.android.volley.Request;
@@ -37,6 +44,7 @@ import com.example.smartdoor.R;
 import com.example.smartdoor.door.DoorState;
 import com.example.smartdoor.door.ListDoor;
 import com.example.smartdoor.network.HttpsTrustManager;
+import com.example.smartdoor.service.WebsocketService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,9 +65,11 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     ListDoor listDoorAdapter;
     TextView errorMsg;
+    DoorState selectedDoor;
     BiometricPrompt biometricPrompt;
     BiometricPrompt.PromptInfo promptInfo;
     private WebSocketClient webSocketClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         ConnectWebSocket();
+        SetBoometric();
+        startService();
     }
     public void GetAllDoorState(ListView listView){
         String url = getResources().getString(R.string.server_host) + "/door/get-all";
@@ -164,7 +176,8 @@ public class MainActivity extends AppCompatActivity {
         openDoor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                OpenDoor(!doorState.getState(), doorState.getId());
+                selectedDoor = doorState;
+                biometricPrompt.authenticate(promptInfo);
                 popupWindow.dismiss();
             }
         });
@@ -252,12 +265,6 @@ public class MainActivity extends AppCompatActivity {
         this.startActivity(intent);
     }
 
-    public void ValidateOpenDoor(boolean doorState, String doorId){
-        biometricPrompt.authenticate(promptInfo);
-
-        OpenDoor(doorState, doorId);
-    }
-
     public void OpenDoor(boolean doorState, String doorId){
         String url = getResources().getString(R.string.server_host) + "/door/change-door-state?" +"door_id="+doorId +"&state="+String.valueOf(doorState) ;
         RequestQueue queue = Volley.newRequestQueue(this);
@@ -321,6 +328,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
+                OpenDoor(!selectedDoor.getState(), selectedDoor.getId());
                 Toast.makeText(getApplicationContext(), "Validate Success", Toast.LENGTH_SHORT).show();
             }
             @Override
@@ -332,6 +340,23 @@ public class MainActivity extends AppCompatActivity {
         // BIOMETRIC DIALOG
          promptInfo = new BiometricPrompt.PromptInfo.Builder().setTitle("GFG")
                 .setDescription("Use your fingerprint to login ").setNegativeButtonText("Cancel").build();
+    }
+
+
+    public void startService() {
+        if(!isServiceStart(WebsocketService.class)){
+            Intent serviceIntent = new Intent(this, WebsocketService.class);
+            startService(serviceIntent);
+        }
+    }
+    private boolean isServiceStart(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
